@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { loginController, logoutController, refreshController, registerController } from '../controllers/auth.controller';
 import { createDevice, deleteDevice, getDevices, updateDevice } from '../controllers/device.controller';
 import { getTelemetry, postTelemetry } from '../controllers/telemetry.controller';
+import { sendDeviceCommand } from '../controllers/command.controller';
 import { createDashboard, deleteDashboard, listDashboards, updateDashboard } from '../controllers/dashboard.controller';
 import { requireAuth } from '../middleware/auth';
 
@@ -16,7 +17,7 @@ r.put('/devices/:id', requireAuth, updateDevice);
 r.delete('/devices/:id', requireAuth, deleteDevice);
 r.get('/telemetry/:deviceId', requireAuth, getTelemetry);
 r.post('/telemetry', postTelemetry);
-r.post('/devices/:id/command', requireAuth, (req, res) => res.json({ status: 'queued', ...req.body }));
+r.post('/devices/:id/command', requireAuth, sendDeviceCommand);
 r.get('/dashboards', requireAuth, listDashboards);
 r.post('/dashboards', requireAuth, createDashboard);
 r.put('/dashboards/:id', requireAuth, updateDashboard);

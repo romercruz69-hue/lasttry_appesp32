@@ -8,6 +8,7 @@ import routes from './routes';
 import { env } from './config/env';
 import { errorHandler } from './middleware/error-handler';
 import { registerSocket } from './sockets/socket';
+import { setIo } from './sockets/realtime';
 import './mqtt/broker';
 
 const app = express();
@@ -22,5 +23,6 @@ app.use(errorHandler);
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: env.clientUrl } });
 registerSocket(io);
+setIo(io);
 
 server.listen(env.port, () => console.log(`API on ${env.port}`));

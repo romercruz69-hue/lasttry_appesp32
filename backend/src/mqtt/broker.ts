@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { env } from '../config/env';
 import { supabase } from '../database/supabase';
 import { logger } from '../utils/logger';
+import { emitDeviceEvent } from '../sockets/realtime';
 
 export const mqttClient = mqtt.connect(env.mqttBrokerUrl, { username: env.mqttUsername, password: env.mqttPassword, reconnectPeriod: 3000 });
 
@@ -16,9 +17,11 @@ mqttClient.on('message', async (topic, payload) => {
   const body = JSON.parse(payload.toString());
   if (channel === 'telemetry') {
     await supabase.from('telemetry').insert({ device_id: deviceId, payload: body });
+    emitDeviceEvent(deviceId, 'telemetry:update', body);
   }
   if (channel === 'status') {
     await supabase.from('devices').update({ online: !!body.online, last_seen: new Date().toISOString() }).eq('device_id', deviceId);
+    emitDeviceEvent(deviceId, 'device:status', body);
   }
 });
 
