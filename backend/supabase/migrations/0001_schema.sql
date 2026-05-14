@@ -1,0 +1,10 @@
+create extension if not exists pgcrypto;
+create table users (id uuid primary key default gen_random_uuid(), email text unique not null, password_hash text not null, email_verified boolean default false, created_at timestamptz default now());
+create table rooms (id uuid primary key default gen_random_uuid(), owner_id uuid references users(id) on delete cascade, name text not null, created_at timestamptz default now());
+create table devices (id uuid primary key default gen_random_uuid(), device_id text unique not null, owner_id uuid references users(id) on delete cascade, room_id uuid references rooms(id) on delete set null, name text not null, online boolean default false, last_seen timestamptz, created_at timestamptz default now());
+create table device_credentials (id uuid primary key default gen_random_uuid(), device_id uuid references devices(id) on delete cascade, token_hash text not null, created_at timestamptz default now());
+create table telemetry (id bigserial primary key, device_id text not null, payload jsonb not null, created_at timestamptz default now());
+create table device_logs (id bigserial primary key, device_id uuid references devices(id) on delete cascade, level text not null, message text not null, metadata jsonb, created_at timestamptz default now());
+create table dashboards (id uuid primary key default gen_random_uuid(), owner_id uuid references users(id) on delete cascade, name text not null, layout jsonb default '[]'::jsonb, created_at timestamptz default now());
+create table widgets (id uuid primary key default gen_random_uuid(), dashboard_id uuid references dashboards(id) on delete cascade, device_id uuid references devices(id) on delete cascade, type text not null, config jsonb not null, created_at timestamptz default now());
+create table automation_rules (id uuid primary key default gen_random_uuid(), owner_id uuid references users(id) on delete cascade, name text not null, trigger jsonb not null, action jsonb not null, enabled boolean default true, created_at timestamptz default now());

@@ -1,0 +1,24 @@
+import { Router } from 'express';
+import { loginController, logoutController, refreshController, registerController } from '../controllers/auth.controller';
+import { createDevice, deleteDevice, getDevices, updateDevice } from '../controllers/device.controller';
+import { getTelemetry, postTelemetry } from '../controllers/telemetry.controller';
+import { createDashboard, deleteDashboard, listDashboards, updateDashboard } from '../controllers/dashboard.controller';
+import { requireAuth } from '../middleware/auth';
+
+const r = Router();
+r.post('/auth/register', registerController);
+r.post('/auth/login', loginController);
+r.post('/auth/refresh', refreshController);
+r.post('/auth/logout', logoutController);
+r.get('/devices', requireAuth, getDevices);
+r.post('/devices', requireAuth, createDevice);
+r.put('/devices/:id', requireAuth, updateDevice);
+r.delete('/devices/:id', requireAuth, deleteDevice);
+r.get('/telemetry/:deviceId', requireAuth, getTelemetry);
+r.post('/telemetry', postTelemetry);
+r.post('/devices/:id/command', requireAuth, (req, res) => res.json({ status: 'queued', ...req.body }));
+r.get('/dashboards', requireAuth, listDashboards);
+r.post('/dashboards', requireAuth, createDashboard);
+r.put('/dashboards/:id', requireAuth, updateDashboard);
+r.delete('/dashboards/:id', requireAuth, deleteDashboard);
+export default r;
