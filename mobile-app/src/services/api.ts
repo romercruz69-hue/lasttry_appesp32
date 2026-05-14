@@ -1,2 +1,16 @@
 import axios from 'axios';
-export const api = axios.create({ baseURL: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:4000/api' });
+import { config } from '../config';
+import { useAuthStore } from '../stores/auth.store';
+
+export const api = axios.create({
+  baseURL: config.apiUrl,
+  timeout: 10000,
+});
+
+api.interceptors.request.use((request) => {
+  const token = useAuthStore.getState().accessToken;
+  if (token) {
+    request.headers.Authorization = `Bearer ${token}`;
+  }
+  return request;
+});
